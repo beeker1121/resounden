@@ -9,8 +9,8 @@ import (
 )
 
 func handleNoWWW(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	http.Redirect(w, r, "http://" + params["domain"] + ".com", 301)
+	vars := mux.Vars(r)
+	http.Redirect(w, r, "http://" + vars["domain"] + ".com", 301)
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
