@@ -1,6 +1,7 @@
 // Global
 var isDragging = false;
 
+// Show search
 function showSearch() {
 	$("#controls").css({ "visibility": "hidden" });
 	$("#search-icon").hide();
@@ -8,6 +9,7 @@ function showSearch() {
 	$("#search-query").css("width", "250px");
 }
 
+// Hide search
 function hideSearch() {
 	$("#search-close-icon").hide();
 	$("#search-icon").show();
@@ -15,6 +17,7 @@ function hideSearch() {
 	$("#controls").css({ "visibility": "visible" });
 }
 
+// Search component
 var Search = React.createClass({
 	displayName: "Search",
 
@@ -22,11 +25,14 @@ var Search = React.createClass({
 		var self = this;
 
 		$("#search-form").submit(function (e) {
+			// Prevent page refresh due to form submit
 			e.preventDefault();
 
+			// Get tracks
 			self.props.getTracks($("#search-query").val());
 		});
 
+		// Handle enter key
 		$("#search-query").keypress(function (e) {
 			if (e.which === 13 || e.keyCode === 13) self.props.getTracks($(this).val());
 		});
@@ -60,6 +66,7 @@ var Controls = React.createClass({
 	displayName: "Controls",
 
 	render: function () {
+		// Handle play/pause button
 		var playPause = (function () {
 			if (this.props.isPlaying) return React.createElement(
 				"div",
@@ -71,6 +78,7 @@ var Controls = React.createClass({
 				React.createElement("span", null)
 			);
 		}).bind(this)();
+
 		return React.createElement(
 			"div",
 			{ id: "controls" },
@@ -108,6 +116,26 @@ var Info = React.createClass({
 	componentDidMount: function () {
 		var self = this;
 
+		// Handle updating time and info based on drag and click events
+		var setTimeFromEvent = function (e) {
+			var width = $("#progress").width(),
+			    x = e.pageX - $("#progress").offset().left;
+
+			// If we're out of bounds
+			if (x < 0) x = 0;
+			if (x > width) x = width;
+
+			// Get time based on tracker position
+			var time = x / width * self.props.currentTrack.track.duration;
+
+			// Set the info time and progress-bar, tracker position
+			$("#current-time").text(msToTime(time));
+			$("#progress-bar").css({ "width": x + "px" });
+			$("#tracker").css({ "left": x + "px" });
+
+			return time;
+		};
+
 		// Make tracker draggable
 		$("#tracker").mousedown(function (e) {
 			// If a track isn't on deck
@@ -119,20 +147,7 @@ var Info = React.createClass({
 			var time;
 
 			var handleDragging = function (e) {
-				var width = $("#progress").width(),
-				    x = e.pageX - $("#progress").offset().left;
-
-				// If we're out of bounds
-				if (x < 0) x = 0;
-				if (x > width) x = width;
-
-				// Get time based on tracker position
-				time = x / width * self.props.currentTrack.track.duration;
-
-				// Set the info time and progress-bar, tracker position
-				$("#current-time").text(msToTime(time));
-				$("#progress-bar").css({ "width": x + "px" });
-				$("#tracker").css({ "left": x + "px" });
+				time = setTimeFromEvent(e);
 			};
 
 			var handleMouseUp = function (e) {
@@ -152,27 +167,13 @@ var Info = React.createClass({
 			// If a track isn't on deck
 			if (self.props.currentTrack.index === -1) return;
 
-			var width = $("#progress").width(),
-			    x = e.pageX - $("#progress").offset().left;
-
-			// If we're out of bounds
-			if (x < 0) x = 0;
-			if (x > width) x = width;
-
-			// Get time based on tracker position
-			var time = x / width * self.props.currentTrack.track.duration;
-
 			// Set track time
-			self.props.setTime(time / 1000);
-
-			// Set the info time and progress-bar, tracker position
-			$("#current-time").text(msToTime(time));
-			$("#progress-bar").css({ "width": x + "px" });
-			$("#tracker").css({ "left": x + "px" });
+			self.props.setTime(setTimeFromEvent(e) / 1000);
 		});
 	},
 
 	render: function () {
+		// Create div elements for rendering cube
 		var Cube = (function () {
 			return React.createElement(
 				"div",
@@ -190,6 +191,7 @@ var Info = React.createClass({
 			);
 		})();
 
+		// Handle track picture
 		var Picture = (function () {
 			if (this.props.currentTrack.index === -1) return Cube;
 
@@ -516,6 +518,7 @@ var Tracks = React.createClass({
 			)
 		);
 
+		// If there is an error
 		if (this.props.error) return React.createElement(
 			"div",
 			{ id: "tracks" },
