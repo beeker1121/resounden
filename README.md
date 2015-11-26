@@ -28,5 +28,5 @@ Babel v6.2.0 (babel-core 6.2.1) (babel-preset-react 6.1.18)
 To compile the resounden.jsx React code into a regular JavaScript file, you must use Babel with the React preset:
 
 1. `cd public/js` to browse to the JavaScript directory.
-1. `npm install babel-preset-react` to install the React preset for Babel.
-2. `babel --presets "react" -o resounden.js resounden.jsx`
+2. `npm install babel-preset-react` to install the React preset for Babel.
+3. `babel --presets "react" -o resounden.js resounden.jsx`
