@@ -51,29 +51,27 @@ func (p *PlaylistController) getPlaylist(w http.ResponseWriter, r *http.Request)
 	// Check for an error response first
 	var jsonError utils.Errors
 
-	// If we can't decode this json into our Errors struct type
-	if err := json.Unmarshal(body, &jsonError); err != nil || len(jsonError.Errors) <= 0 {
-		// Try decoding it into our Collection type
-		var collection models.Collection
-
-		// If we can't decode this json into our struct type
-		if err := json.Unmarshal(body, &collection); err != nil {
-			utils.WriteError(utils.Error{500, "Can't decode JSON into struct type"}, w)
-			return
-		}
-
-		// Append the Soundcloud Client ID to stream_url for each track
-		for i, _ := range collection.Collection {
-			collection.Collection[i].StreamURL += "?client_id=" + p.APIKey
-		}
-
-		// Encode our Collection struct as a json string and send
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(collection)
-
+	// If we can decode this json into our Errors struct type
+	if json.Unmarshal(body, &jsonError); len(jsonError.Errors) > 0 {
+		utils.WriteError(utils.Error{404, "Member could not be found"}, w)
 		return
 	}
 
-	// Otherwise output the error
-	utils.WriteError(utils.Error{404, "Member could not be found"}, w)
+	// Try decoding it into our Collection type
+	var collection models.Collection
+
+	// If we can't decode this json into our struct type
+	if err := json.Unmarshal(body, &collection); err != nil {
+		utils.WriteError(utils.Error{500, "Can't decode JSON into struct type"}, w)
+		return
+	}
+
+	// Append the Soundcloud Client ID to stream_url for each track
+	for i, _ := range collection.Collection {
+		collection.Collection[i].StreamURL += "?client_id=" + p.APIKey
+	}
+
+	// Encode our Collection struct as a json string and send
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(collection)
 }
