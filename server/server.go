@@ -10,7 +10,7 @@ import (
 
 func handleNoWWW(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	http.Redirect(w, r, "http://" + vars["domain"] + ".com", 301)
+	http.Redirect(w, r, "http://" + vars["domain"] + "." + vars["tld"], 301)
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func NewServer(config utils.Config) {
 	router := mux.NewRouter()
 
 	// Force no WWW
-	router.HandleFunc("/", handleNoWWW).Host("www.{domain}.com")
+	router.HandleFunc("/", handleNoWWW).Host("www.{domain}.{tld}")
 
 	// Serve index
 	router.HandleFunc("/", handleIndex)
