@@ -64,7 +64,7 @@ func (p *PlaylistController) getPlaylist(w http.ResponseWriter, r *http.Request)
 
 		// Append the Soundcloud Client ID to stream_url for each track
 		for i, _ := range collection.Collection {
-			collection.Collection[i].StreamURL += "?client_id=0f896da3d3b0d873410ff5bb29868d11"
+			collection.Collection[i].StreamURL += "?client_id=" + p.APIKey
 		}
 
 		// Encode our Collection struct as a json string and send
